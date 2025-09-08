@@ -15,21 +15,54 @@ template = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OnWorks OS Launcher</title>
+    <title>OnWorks OS Embedded</title>
     <style>
         body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
         h1 { color: #333; }
-        a { display: block; margin: 10px 0; padding: 10px; background: #007bff; color: white; text-decoration: none; border-radius: 5px; width: 300px; }
-        a:hover { background: #0056b3; }
+        .os-list { margin-bottom: 20px; }
+        button {
+            margin-right: 10px; margin-bottom: 10px;
+            padding: 8px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        iframe {
+            width: 100%;
+            height: 800px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
     </style>
 </head>
 <body>
     <h1>Launch OS on OnWorks as {{ username }}</h1>
-    {% for name, os_id in os_list.items() %}
-        <a href="https://www.onworks.net/runos/create-os.html?os={{ os_id }}&home=init&username={{ username }}" target="_blank" rel="noopener noreferrer">
-            {{ name }}
-        </a>
-    {% endfor %}
+
+    <div class="os-list">
+        {% for name, os_id in os_list.items() %}
+            <button onclick="loadOS('{{ os_id }}')">{{ name }}</button>
+        {% endfor %}
+    </div>
+
+    <iframe id="osframe" src="" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+
+    <script>
+        function loadOS(os) {
+            const iframe = document.getElementById('osframe');
+            iframe.src = `https://www.onworks.net/runos/create-os.html?os=${os}&home=init&username={{ username }}`;
+        }
+        // Load the first OS by default on page load
+        window.onload = () => {
+            const firstOS = "{{ os_list.values()|list|first }}";
+            loadOS(firstOS);
+        }
+    </script>
 </body>
 </html>
 """
@@ -41,3 +74,4 @@ def index():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
